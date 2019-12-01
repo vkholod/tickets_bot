@@ -6,6 +6,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TimetableRequestDto {
 
@@ -41,7 +43,7 @@ public class TimetableRequestDto {
         Flight outboundFlight = new Flight(departureStation, arrivalStation, from, to);
         Flight returnFlight = new Flight(arrivalStation, departureStation, from, to);
 
-        return new TimetableRequestDto(List.of(outboundFlight, returnFlight), adultCount);
+        return new TimetableRequestDto(Stream.of(outboundFlight, returnFlight).collect(Collectors.toList()), adultCount);
     }
 
     public List<Flight> getFlightList() {
