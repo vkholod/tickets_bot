@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Main {
+public class MyApp {
 
     private static final String SUCEAVA = "SCV";
     private static final String ROME = "CIA";
