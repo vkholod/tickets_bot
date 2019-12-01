@@ -9,14 +9,17 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class MyApp {
+public class TimetableGenerator {
+
+    private static WizClient client = new WizClient();
 
     private static final String SUCEAVA = "SCV";
     private static final String ROME = "CIA";
 
-    public static void main(String[] args) throws InterruptedException, IOException {
+    public static String generate() throws IOException {
         LocalDate from = LocalDate.of(2020, 5, 11);
         LocalDate to = LocalDate.of(2020, 5, 31);
 
@@ -35,19 +38,17 @@ public class MyApp {
                     .collect(Collectors.toList());
         }
 
-        outboundFlights.stream()
+        return outboundFlights.stream()
                 .flatMap(outboundFlight ->
                         returnFlights.stream()
-                            .filter(returnFlight -> returnFlight.isEqualOrAfter(outboundFlight))
-                            .map(returnFlight -> new FlightPair(outboundFlight, returnFlight))
-                            .collect(Collectors.toList()).stream()
+                                .filter(returnFlight -> returnFlight.isEqualOrAfter(outboundFlight))
+                                .map(returnFlight -> new FlightPair(outboundFlight, returnFlight))
+                                .collect(Collectors.toList()).stream()
                 ).sorted(Comparator.comparing(FlightPair::totalPrice))
-                .forEach(flightPair -> System.out.println(flightPair + "\n"));
+                .collect(Collectors.mapping((Function<FlightPair, String>) flightPair -> flightPair + "\n", Collectors.joining()));
     }
 
     private static Timetable get(LocalDate from, LocalDate to) throws IOException {
-        WizClient client = new WizClient();
-
         TimetableRequestDto timetableRequestDto = TimetableRequestDto.create(
                 SUCEAVA, ROME,
                 from, to,
