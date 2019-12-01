@@ -19,10 +19,10 @@ public class TimetableServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        ServletOutputStream out = resp.getOutputStream();
-        out.write(TimetableGenerator.generate().getBytes());
-        out.flush();
-        out.close();
+
+        req.setAttribute("flight_pairs", TimetableGenerator.generate());
+        req.getRequestDispatcher("/timetable.jsp").forward(req, resp);
+
     }
 
 }

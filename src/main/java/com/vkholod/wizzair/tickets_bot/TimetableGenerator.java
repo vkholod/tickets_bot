@@ -19,7 +19,7 @@ public class TimetableGenerator {
     private static final String SUCEAVA = "SCV";
     private static final String ROME = "CIA";
 
-    public static String generate() throws IOException {
+    public static List<FlightPair> generate() throws IOException {
         LocalDate from = LocalDate.of(2020, 5, 11);
         LocalDate to = LocalDate.of(2020, 5, 31);
 
@@ -45,7 +45,7 @@ public class TimetableGenerator {
                                 .map(returnFlight -> new FlightPair(outboundFlight, returnFlight))
                                 .collect(Collectors.toList()).stream()
                 ).sorted(Comparator.comparing(FlightPair::totalPrice))
-                .collect(Collectors.mapping((Function<FlightPair, String>) flightPair -> flightPair + "\n", Collectors.joining()));
+                .collect(Collectors.toList());
     }
 
     private static Timetable get(LocalDate from, LocalDate to) throws IOException {
