@@ -10,7 +10,9 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <tomcat.version>8.5.23</tomcat.version>
+        <tomcat.version>8.5.40</tomcat.version>
+        <jackson.version>2.9.10.1</jackson.version>
+        <okhttp.version>2.7.5</okhttp.version>
     </properties>
     <dependencies>
         <dependency>
@@ -42,13 +44,13 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.8</version>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.squareup.okhttp</groupId>
             <artifactId>okhttp</artifactId>
-            <version>2.7.5</version>
+            <version>${okhttp.version}</version>
         </dependency>
 
         <dependency>
