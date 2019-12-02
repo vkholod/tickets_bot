@@ -1,1 +1,1 @@
-web: java -cp "target/TicketsBot.jar" com.vkholod.wizzair.tickets_bot.TicketsBotApp server config.yml
+web: java $JAVA_OPTS -Ddw.server.applicationConnectors[0].port=$PORT -jar target/TicketsBot.jar server config.yml
