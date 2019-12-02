@@ -1,23 +1,17 @@
 package com.vkholod.wizzair.tickets_bot.model;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.vkholod.wizzair.tickets_bot.util.FlightDateDeserializer;
 import com.vkholod.wizzair.tickets_bot.util.FlightDateSerializer;
 import com.vkholod.wizzair.tickets_bot.util.FlightDateTimeDeserializer;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 
-import static com.vkholod.wizzair.tickets_bot.util.Const.DATE_TIME_FORMATTER;
 import static com.vkholod.wizzair.tickets_bot.util.Const.DATE_TIME_HR_FORMATTER;
 
 public class Flight {

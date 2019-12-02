@@ -1,1 +1,1 @@
-web: sh target/bin/webapp
+web: java -cp "target/TicketsBot.jar" com.vkholod.wizzair.tickets_bot.TicketsBotApp server config.yml

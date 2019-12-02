@@ -1,10 +1,6 @@
 package com.vkholod.wizzair.tickets_bot.model;
 
-import com.vkholod.wizzair.tickets_bot.util.Const;
-
 import java.math.BigDecimal;
-
-import static com.vkholod.wizzair.tickets_bot.util.Const.DATE_TIME_FORMATTER;
 
 public class FlightPair {
 

@@ -12,7 +12,7 @@ import java.io.IOException;
 
 @WebServlet(
         name = "Timetable",
-        urlPatterns = {"/timetable"}
+        urlPatterns = {"/timetable_old"}
 )
 public class TimetableServlet extends HttpServlet {
 
