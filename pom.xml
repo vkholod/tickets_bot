@@ -11,7 +11,7 @@
 
     <properties>
         <tomcat.version>8.5.40</tomcat.version>
-        <jackson.version>2.9.10.1</jackson.version>
+        <jackson.version>2.10.1</jackson.version>
         <okhttp.version>2.7.5</okhttp.version>
     </properties>
     <dependencies>
