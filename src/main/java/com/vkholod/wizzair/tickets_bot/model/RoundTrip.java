@@ -1,13 +1,15 @@
 package com.vkholod.wizzair.tickets_bot.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+
 import java.math.BigDecimal;
 
-public class FlightPair {
+public class RoundTrip {
 
     private Flight outboundFlight;
     private Flight returnFlight;
 
-    public FlightPair(Flight outboundFlight, Flight returnFlight) {
+    public RoundTrip(Flight outboundFlight, Flight returnFlight) {
         this.outboundFlight = outboundFlight;
         this.returnFlight = returnFlight;
     }
@@ -28,6 +30,7 @@ public class FlightPair {
         this.returnFlight = returnFlight;
     }
 
+    @JsonGetter
     public BigDecimal totalPrice() {
         return outboundFlight.getPrice().getAmount().add(returnFlight.getPrice().getAmount());
     }

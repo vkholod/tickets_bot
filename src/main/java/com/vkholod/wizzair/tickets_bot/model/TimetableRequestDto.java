@@ -86,6 +86,14 @@ public class TimetableRequestDto {
         this.infantCount = infantCount;
     }
 
+    public String generateRedisKey() {
+        String flightsKey = flightList.stream()
+                .map(Flight::generateRedisKey)
+                .collect(Collectors.joining("_"));
+
+        return String.join("_", flightsKey, String.valueOf(adultCount));
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SIMPLE_STYLE);

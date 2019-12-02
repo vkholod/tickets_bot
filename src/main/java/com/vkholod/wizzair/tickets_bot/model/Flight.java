@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.vkholod.wizzair.tickets_bot.util.Const.DATE_FORMATTER;
 import static com.vkholod.wizzair.tickets_bot.util.Const.DATE_TIME_HR_FORMATTER;
 
 public class Flight {
@@ -113,6 +114,10 @@ public class Flight {
 
     public boolean isEqualOrAfter(Flight otherFlight) {
         return this.departureDateTime().isEqual(otherFlight.departureDateTime()) || this.departureDateTime().isAfter(otherFlight.departureDateTime());
+    }
+
+    public String generateRedisKey() {
+        return String.join("_", departureStation, arrivalStation, DATE_FORMATTER.format(from), DATE_FORMATTER.format(to));
     }
 
     @Override

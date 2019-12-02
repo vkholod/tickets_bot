@@ -6,4 +6,16 @@ server:
   adminConnectors:
     - type: http
       port: 8082
-tmpVar: tmpVal
+
+redisPoolConfig:
+  maxTotal: 10
+  maxIdle: 5
+  minIdle: 1
+  testOnBorrow: true
+  testOnReturn: true
+  testWhileIdle: true
+
+redisUri: "redis://h:p51a15a9697437861d8d80fc9ef32c916b14a3e9cd6d479cd35278336e9edfa34@ec2-3-221-86-85.compute-1.amazonaws.com:20019"
+
+okHttpClientConnectTimeout: 10
+okHttpClientReadTimeout: 30

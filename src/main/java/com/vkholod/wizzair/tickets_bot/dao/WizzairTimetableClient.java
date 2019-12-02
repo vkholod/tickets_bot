@@ -1,7 +1,5 @@
-package com.vkholod.wizzair.tickets_bot;
+package com.vkholod.wizzair.tickets_bot.dao;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -10,9 +8,8 @@ import com.vkholod.wizzair.tickets_bot.model.Timetable;
 import com.vkholod.wizzair.tickets_bot.model.TimetableRequestDto;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
-public class WizClient {
+public class WizzairTimetableClient {
 
     private OkHttpClient client;
     private ObjectReader reader;
@@ -21,20 +18,14 @@ public class WizClient {
     private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json");
     private static final HttpUrl TIMETABLE_URL = buildTimetableUrl();
 
-    public WizClient() {
-        this.client = new OkHttpClient();
-        this.client.setConnectTimeout(10, TimeUnit.SECONDS);
-        this.client.setReadTimeout(30, TimeUnit.SECONDS);
-
-        ObjectMapper mapper = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    public WizzairTimetableClient(ObjectMapper mapper, OkHttpClient client) {
+        this.client = client;
 
         this.reader = mapper.readerFor(Timetable.class);
         this.writer = mapper.writerFor(TimetableRequestDto.class);
     }
 
-    public Timetable getTimetable(TimetableRequestDto timetableRequestDto) throws IOException {
+    public Timetable fetchTimetable(TimetableRequestDto timetableRequestDto) throws IOException {
         String payload = writer.writeValueAsString(timetableRequestDto);
 
         Request request = new Request.Builder()
