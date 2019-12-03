@@ -3,8 +3,8 @@ package com.vkholod.wizzair.tickets_bot.resources;
 import com.vkholod.wizzair.tickets_bot.model.RoundTrip;
 import com.vkholod.wizzair.tickets_bot.model.Timetable;
 import com.vkholod.wizzair.tickets_bot.model.TimetableRequestDto;
-import com.vkholod.wizzair.tickets_bot.service.RoundTripsService;
 import com.vkholod.wizzair.tickets_bot.service.TimetableService;
+import com.vkholod.wizzair.tickets_bot.util.RoundTripsUtil;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,11 +18,9 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class RoundTripResource {
 
-    private RoundTripsService roundTripsService;
     private TimetableService timetableService;
 
-    public RoundTripResource(RoundTripsService roundTripsService, TimetableService timetableService) {
-        this.roundTripsService = roundTripsService;
+    public RoundTripResource(TimetableService timetableService) {
         this.timetableService = timetableService;
     }
 
@@ -37,7 +35,7 @@ public class RoundTripResource {
 
         Timetable timetable = timetableService.getTimetable(timetableRequestDto);
 
-        return roundTripsService.getRoundTrips(timetable);
+        return RoundTripsUtil.buildRoundTrips(timetable);
     }
 
 }

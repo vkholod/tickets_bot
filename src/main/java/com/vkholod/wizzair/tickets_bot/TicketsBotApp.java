@@ -7,8 +7,8 @@ import com.squareup.okhttp.OkHttpClient;
 import com.vkholod.wizzair.tickets_bot.dao.RedisStorage;
 import com.vkholod.wizzair.tickets_bot.dao.WizzairTimetableClient;
 import com.vkholod.wizzair.tickets_bot.resources.RoundTripResource;
-import com.vkholod.wizzair.tickets_bot.service.RoundTripsService;
 import com.vkholod.wizzair.tickets_bot.service.TimetableService;
+import com.vkholod.wizzair.tickets_bot.telegram.VovaTicketsBot;
 import com.vkholod.wizzair.tickets_bot.util.TimetableObserver;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -24,16 +24,18 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
 
     @Override
     public void run(TicketsBotConfig config, Environment environment) throws Exception {
-        TimetableObserver timetableObserver = new TimetableObserver();
+
+        OkHttpClient httpClient = httpClient(config);
+        VovaTicketsBot bot = new VovaTicketsBot(httpClient, config.getTelegramBotToken(), config.getTelegramChatId());
+        TimetableObserver timetableObserver = new TimetableObserver(bot);
 
         RedisStorage redisStorage = new RedisStorage(config.getRedisUri(), config.getRedisPoolConfig());
 
-        WizzairTimetableClient timetableClient = new WizzairTimetableClient(mapper(), httpClient(config));
+        WizzairTimetableClient timetableClient = new WizzairTimetableClient(mapper(), httpClient);
 
         TimetableService timetableService = new TimetableService(timetableClient, redisStorage, timetableObserver);
-        RoundTripsService roundTripsService = new RoundTripsService();
 
-        environment.jersey().register(new RoundTripResource(roundTripsService, timetableService));
+        environment.jersey().register(new RoundTripResource(timetableService));
     }
 
     @Override

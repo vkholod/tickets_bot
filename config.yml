@@ -19,3 +19,6 @@ redisUri: "redis://h:p51a15a9697437861d8d80fc9ef32c916b14a3e9cd6d479cd35278336e9
 
 okHttpClientConnectTimeout: 10
 okHttpClientReadTimeout: 30
+
+telegramBotToken: 1050919465:AAEUDUN0u2N9E9f4oCB6QTG9949SO9OYvMI
+telegramChatId: 607797330

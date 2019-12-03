@@ -9,6 +9,10 @@ public class TicketsBotConfig extends Configuration {
 
     private JedisPoolConfig redisPoolConfig;
     private URI redisUri;
+
+    private String telegramBotToken;
+    private String telegramChatId;
+
     private int okHttpClientConnectTimeout;
     private int okHttpClientReadTimeout;
 
@@ -42,5 +46,21 @@ public class TicketsBotConfig extends Configuration {
 
     public void setOkHttpClientReadTimeout(int okHttpClientReadTimeout) {
         this.okHttpClientReadTimeout = okHttpClientReadTimeout;
+    }
+
+    public String getTelegramBotToken() {
+        return telegramBotToken;
+    }
+
+    public void setTelegramBotToken(String telegramBotToken) {
+        this.telegramBotToken = telegramBotToken;
+    }
+
+    public String getTelegramChatId() {
+        return telegramChatId;
+    }
+
+    public void setTelegramChatId(String telegramChatId) {
+        this.telegramChatId = telegramChatId;
     }
 }
