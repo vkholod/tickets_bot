@@ -1,10 +1,11 @@
-package com.vkholod.wizzair.tickets_bot.util;
+package com.vkholod.wizzair.tickets_bot.job;
 
 import com.vkholod.wizzair.tickets_bot.dao.RedisStorage;
 import com.vkholod.wizzair.tickets_bot.model.Timetable;
 import com.vkholod.wizzair.tickets_bot.model.TimetableRequestDto;
 import com.vkholod.wizzair.tickets_bot.service.TimetableService;
 import com.vkholod.wizzair.tickets_bot.telegram.VovaTicketsBot;
+import com.vkholod.wizzair.tickets_bot.util.RoundTripsUtil;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;

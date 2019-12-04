@@ -15,6 +15,8 @@ import java.util.Optional;
 
 public class RedisStorage {
 
+    private static final String TELEGRAM_OFFSET_KEY = "TELEGRAM_OFFSET_KEY";
+
     private JedisPool pool;
     private ObjectReader timetableReader;
     private ObjectWriter timetableWriter;
@@ -45,6 +47,22 @@ public class RedisStorage {
             resource.set(key, value);
         } catch (JsonProcessingException e) {
             System.err.println("Could not serialize timetable " + e.getMessage());
+        }
+    }
+
+    public Optional<Integer> findTelegramOffsetInRedis() {
+        try(Jedis resource = pool.getResource()) {
+            if (resource.exists(TELEGRAM_OFFSET_KEY)) {
+                return Optional.of(Integer.parseInt(resource.get(TELEGRAM_OFFSET_KEY)));
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public void saveTelegramOffsetInRedis(int offset) {
+        try(Jedis resource = pool.getResource()) {
+            resource.set(TELEGRAM_OFFSET_KEY, String.valueOf(offset));
         }
     }
 }

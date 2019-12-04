@@ -3,13 +3,16 @@ package com.vkholod.wizzair.tickets_bot;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.squareup.okhttp.OkHttpClient;
 import com.vkholod.wizzair.tickets_bot.dao.RedisStorage;
 import com.vkholod.wizzair.tickets_bot.dao.WizzairTimetableClient;
+import com.vkholod.wizzair.tickets_bot.job.TelegramJob;
+import com.vkholod.wizzair.tickets_bot.model.telegram.Update;
 import com.vkholod.wizzair.tickets_bot.resources.RoundTripResource;
 import com.vkholod.wizzair.tickets_bot.service.TimetableService;
 import com.vkholod.wizzair.tickets_bot.telegram.VovaTicketsBot;
-import com.vkholod.wizzair.tickets_bot.util.TimetableCheckJob;
+import com.vkholod.wizzair.tickets_bot.job.TimetableCheckJob;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -36,7 +39,7 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
 
         RedisStorage redisStorage = new RedisStorage(config.getRedisUri(), config.getRedisPoolConfig(), mapper);
 
-        setUpScheduler(bot, timetableService, redisStorage);
+        setUpScheduler(bot, timetableService, redisStorage, mapper);
 
         environment.jersey().register(new RoundTripResource(timetableService));
     }
@@ -63,20 +66,21 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
-    private void setUpScheduler(VovaTicketsBot bot, TimetableService timetableService, RedisStorage storage) {
+    private void setUpScheduler(VovaTicketsBot bot, TimetableService timetableService, RedisStorage storage, ObjectMapper mapper) {
         try {
             JobDataMap jobDataMap = new JobDataMap();
             jobDataMap.put("bot", bot);
             jobDataMap.put("timetableService", timetableService);
             jobDataMap.put("storage", storage);
+            jobDataMap.put("reader", mapper.readerFor(Update.class));
 
-            JobDetail job = JobBuilder.newJob(TimetableCheckJob.class)
+            JobDetail timeTableCheckJob = JobBuilder.newJob(TimetableCheckJob.class)
                     .withIdentity("timeTableCheckJob", "group1")
                     .usingJobData(jobDataMap)
                     .build();
 
-            Trigger trigger = TriggerBuilder.newTrigger()
-                    .withIdentity("myTrigger", "group1")
+            Trigger timeTableCheckTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity("timeTableCheckTrigger", "group1")
                     .startNow()
                     .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                             .withIntervalInHours(1)
@@ -84,10 +88,25 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
                     )
                     .build();
 
+            JobDetail telegramJob = JobBuilder.newJob(TelegramJob.class)
+                    .withIdentity("telegramJob", "group1")
+                    .usingJobData(jobDataMap)
+                    .build();
+
+            Trigger telegramTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity("telegramTrigger", "group1")
+                    .startNow()
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withIntervalInSeconds(5)
+                            .repeatForever()
+                    )
+                    .build();
+
             SchedulerFactory schedulerFactory = new StdSchedulerFactory();
             Scheduler scheduler = schedulerFactory.getScheduler();
 
-            scheduler.scheduleJob(job, trigger);
+            scheduler.scheduleJob(timeTableCheckJob, timeTableCheckTrigger);
+            scheduler.scheduleJob(telegramJob, telegramTrigger);
 
             scheduler.start();
         } catch (Exception e) {

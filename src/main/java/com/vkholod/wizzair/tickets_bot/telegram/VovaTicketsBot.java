@@ -42,6 +42,15 @@ public class VovaTicketsBot {
         return doGet(getUpdatesUrl);
     }
 
+    public String getUpdates(int offset) throws IOException {
+        HttpUrl getUpdatesUrl = baseUrl.newBuilder()
+                .addPathSegment("getUpdates")
+                .addQueryParameter("offset", Integer.toString(offset))
+                .build();
+
+        return doGet(getUpdatesUrl);
+    }
+
     private String doGet(HttpUrl url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
