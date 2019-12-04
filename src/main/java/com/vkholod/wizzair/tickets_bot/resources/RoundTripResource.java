@@ -11,7 +11,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 
 @Path("/roundTrips")
@@ -27,13 +26,7 @@ public class RoundTripResource {
     @GET
     @Produces("application/json")
     public List<RoundTrip> roundTrips() throws IOException {
-        TimetableRequestDto timetableRequestDto = TimetableRequestDto.create(
-                "SCV", "CIA",
-                LocalDate.of(2020, 5, 11), LocalDate.of(2020, 5, 31),
-                2
-        );
-
-        Timetable timetable = timetableService.getTimetable(timetableRequestDto);
+        Timetable timetable = timetableService.getTimetable(TimetableRequestDto.defaultDto());
 
         return RoundTripsUtil.buildRoundTrips(timetable);
     }

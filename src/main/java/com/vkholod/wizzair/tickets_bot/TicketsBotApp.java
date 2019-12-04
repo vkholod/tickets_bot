@@ -9,10 +9,12 @@ import com.vkholod.wizzair.tickets_bot.dao.WizzairTimetableClient;
 import com.vkholod.wizzair.tickets_bot.resources.RoundTripResource;
 import com.vkholod.wizzair.tickets_bot.service.TimetableService;
 import com.vkholod.wizzair.tickets_bot.telegram.VovaTicketsBot;
-import com.vkholod.wizzair.tickets_bot.util.TimetableObserver;
+import com.vkholod.wizzair.tickets_bot.util.TimetableCheckJob;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,17 +25,18 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
     }
 
     @Override
-    public void run(TicketsBotConfig config, Environment environment) throws Exception {
-
+    public void run(TicketsBotConfig config, Environment environment) {
         OkHttpClient httpClient = httpClient(config);
+        ObjectMapper mapper = mapper();
+
         VovaTicketsBot bot = new VovaTicketsBot(httpClient, config.getTelegramBotToken(), config.getTelegramChatId());
-        TimetableObserver timetableObserver = new TimetableObserver(bot);
 
-        RedisStorage redisStorage = new RedisStorage(config.getRedisUri(), config.getRedisPoolConfig());
+        WizzairTimetableClient timetableClient = new WizzairTimetableClient(mapper, httpClient);
+        TimetableService timetableService = new TimetableService(timetableClient);
 
-        WizzairTimetableClient timetableClient = new WizzairTimetableClient(mapper(), httpClient);
+        RedisStorage redisStorage = new RedisStorage(config.getRedisUri(), config.getRedisPoolConfig(), mapper);
 
-        TimetableService timetableService = new TimetableService(timetableClient, redisStorage, timetableObserver);
+        setUpScheduler(bot, timetableService, redisStorage);
 
         environment.jersey().register(new RoundTripResource(timetableService));
     }
@@ -58,6 +61,38 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
         return new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
+    private void setUpScheduler(VovaTicketsBot bot, TimetableService timetableService, RedisStorage storage) {
+        try {
+            JobDataMap jobDataMap = new JobDataMap();
+            jobDataMap.put("bot", bot);
+            jobDataMap.put("timetableService", timetableService);
+            jobDataMap.put("storage", storage);
+
+            JobDetail job = JobBuilder.newJob(TimetableCheckJob.class)
+                    .withIdentity("timeTableCheckJob", "group1")
+                    .usingJobData(jobDataMap)
+                    .build();
+
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("myTrigger", "group1")
+                    .startNow()
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withIntervalInHours(1)
+                            .repeatForever()
+                    )
+                    .build();
+
+            SchedulerFactory schedulerFactory = new StdSchedulerFactory();
+            Scheduler scheduler = schedulerFactory.getScheduler();
+
+            scheduler.scheduleJob(job, trigger);
+
+            scheduler.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

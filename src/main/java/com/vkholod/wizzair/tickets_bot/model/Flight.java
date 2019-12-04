@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.vkholod.wizzair.tickets_bot.util.FlightDateDeserializer;
 import com.vkholod.wizzair.tickets_bot.util.FlightDateSerializer;
+import com.vkholod.wizzair.tickets_bot.util.FlightDateTimeConverter;
 import com.vkholod.wizzair.tickets_bot.util.FlightDateTimeDeserializer;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,6 +39,7 @@ public class Flight {
     private Price price;
 
     @JsonProperty
+    @JsonSerialize(converter = FlightDateTimeConverter.class)
     @JsonDeserialize(using = FlightDateTimeDeserializer.class)
     private List<LocalDateTime> departureDates;
 
@@ -118,6 +121,11 @@ public class Flight {
 
     public String generateRedisKey() {
         return String.join("_", departureStation, arrivalStation, DATE_FORMATTER.format(from), DATE_FORMATTER.format(to));
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        return EqualsBuilder.reflectionEquals(this, that);
     }
 
     @Override

@@ -46,6 +46,14 @@ public class TimetableRequestDto {
         return new TimetableRequestDto(Stream.of(outboundFlight, returnFlight).collect(Collectors.toList()), adultCount);
     }
 
+    public static TimetableRequestDto defaultDto() {
+        return TimetableRequestDto.create(
+                "SCV", "CIA",
+                LocalDate.of(2020, 5, 11), LocalDate.of(2020, 5, 31),
+                2
+        );
+    }
+
     public List<Flight> getFlightList() {
         return flightList;
     }
