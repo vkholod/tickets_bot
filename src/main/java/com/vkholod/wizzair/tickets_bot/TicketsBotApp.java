@@ -3,23 +3,24 @@ package com.vkholod.wizzair.tickets_bot;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.squareup.okhttp.OkHttpClient;
 import com.vkholod.wizzair.tickets_bot.dao.RedisStorage;
 import com.vkholod.wizzair.tickets_bot.dao.WizzairTimetableClient;
-import com.vkholod.wizzair.tickets_bot.job.TelegramJob;
-import com.vkholod.wizzair.tickets_bot.model.telegram.Update;
 import com.vkholod.wizzair.tickets_bot.resources.RoundTripResource;
 import com.vkholod.wizzair.tickets_bot.service.TimetableService;
-import com.vkholod.wizzair.tickets_bot.telegram.VovaTicketsBot;
-import com.vkholod.wizzair.tickets_bot.job.TimetableCheckJob;
+import com.vkholod.wizzair.tickets_bot.telegram.*;
+import com.vkholod.wizzair.tickets_bot.util.QuartzUtils;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static com.vkholod.wizzair.tickets_bot.util.Const.*;
 
 public class TicketsBotApp extends Application<TicketsBotConfig> {
 
@@ -28,7 +29,7 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
     }
 
     @Override
-    public void run(TicketsBotConfig config, Environment environment) {
+    public void run(TicketsBotConfig config, Environment environment) throws SchedulerException {
         OkHttpClient httpClient = httpClient(config);
         ObjectMapper mapper = mapper();
 
@@ -39,7 +40,14 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
 
         RedisStorage redisStorage = new RedisStorage(config.getRedisUri(), config.getRedisPoolConfig(), mapper);
 
-        setUpScheduler(bot, timetableService, redisStorage, mapper);
+        Scheduler scheduler = initScheduler(bot, redisStorage, timetableService, mapper);
+
+        environment.jersey().register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(scheduler).to(Scheduler.class);
+            }
+        });
 
         environment.jersey().register(new RoundTripResource(timetableService));
     }
@@ -66,52 +74,35 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
-    private void setUpScheduler(VovaTicketsBot bot, TimetableService timetableService, RedisStorage storage, ObjectMapper mapper) {
-        try {
-            JobDataMap jobDataMap = new JobDataMap();
-            jobDataMap.put("bot", bot);
-            jobDataMap.put("timetableService", timetableService);
-            jobDataMap.put("storage", storage);
-            jobDataMap.put("reader", mapper.readerFor(Update.class));
+    private Scheduler initScheduler(
+            VovaTicketsBot bot,
+            RedisStorage storage,
+            TimetableService service,
+            ObjectMapper mapper
+    ) throws SchedulerException {
 
-            JobDetail timeTableCheckJob = JobBuilder.newJob(TimetableCheckJob.class)
-                    .withIdentity("timeTableCheckJob", "group1")
-                    .usingJobData(jobDataMap)
-                    .build();
+        Scheduler scheduler = new StdSchedulerFactory().getScheduler();
 
-            Trigger timeTableCheckTrigger = TriggerBuilder.newTrigger()
-                    .withIdentity("timeTableCheckTrigger", "group1")
-                    .startNow()
-                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                            .withIntervalInHours(1)
-                            .repeatForever()
-                    )
-                    .build();
+        List<TelegramMessageProcessor> processors = List.of(
+                new StatusProcessor(bot),
+                new ToggleTimetableCheckProcessor(bot, scheduler),
+                new TimetableProcessor(bot, service, storage)
+        );
 
-            JobDetail telegramJob = JobBuilder.newJob(TelegramJob.class)
-                    .withIdentity("telegramJob", "group1")
-                    .usingJobData(jobDataMap)
-                    .build();
+        JobDetail timetableCheckJob = QuartzUtils.createTimetableCheckJob(bot, storage, service, processors);
+        JobDetail telegramJob = QuartzUtils.createTelegramJob(bot, storage, mapper, processors);
 
-            Trigger telegramTrigger = TriggerBuilder.newTrigger()
-                    .withIdentity("telegramTrigger", "group1")
-                    .startNow()
-                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                            .withIntervalInSeconds(5)
-                            .repeatForever()
-                    )
-                    .build();
+        Trigger telegramTrigger = QuartzUtils.preparePermanentTrigger(TELEGRAM_JOB_NAME, TELEGRAM_TRIGGER_NAME, 5);
+        Trigger timetableCheckTrigger = QuartzUtils.preparePermanentTrigger(TIMETABLE_CHECK_JOB_NAME, TIMETABLE_CHEC_TRIGGER_NAME, 30);
 
-            SchedulerFactory schedulerFactory = new StdSchedulerFactory();
-            Scheduler scheduler = schedulerFactory.getScheduler();
+        scheduler.scheduleJob(telegramJob, telegramTrigger);
+        scheduler.scheduleJob(timetableCheckJob, timetableCheckTrigger);
 
-            scheduler.scheduleJob(timeTableCheckJob, timeTableCheckTrigger);
-            scheduler.scheduleJob(telegramJob, telegramTrigger);
+        scheduler.pauseJob(JobKey.jobKey(TIMETABLE_CHECK_JOB_NAME));
 
-            scheduler.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        scheduler.start();
+
+        return scheduler;
     }
 
 }

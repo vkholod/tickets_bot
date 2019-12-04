@@ -36,15 +36,9 @@ public class RoundTripsUtil {
     }
 
     public static String buildMessage(Timetable timetable) {
-        StringBuilder messageBuilder = new StringBuilder("Timetable changed\n");
-
-        String roundTripsMessage = buildRoundTrips(timetable).stream()
+        return buildRoundTrips(timetable).stream()
                 .map(RoundTrip::toString)
                 .collect(Collectors.joining("\n----------\n"));
-
-        messageBuilder.append(roundTripsMessage);
-
-        return messageBuilder.toString();
     }
 
 }

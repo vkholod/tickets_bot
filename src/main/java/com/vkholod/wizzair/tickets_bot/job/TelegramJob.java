@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.vkholod.wizzair.tickets_bot.dao.RedisStorage;
 import com.vkholod.wizzair.tickets_bot.model.telegram.Result;
 import com.vkholod.wizzair.tickets_bot.model.telegram.Update;
+import com.vkholod.wizzair.tickets_bot.telegram.TelegramMessageProcessor;
 import com.vkholod.wizzair.tickets_bot.telegram.VovaTicketsBot;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.Job;
@@ -15,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Predicate;
@@ -32,21 +34,12 @@ public class TelegramJob implements Job {
         VovaTicketsBot bot = VovaTicketsBot.class.cast(data.get("bot"));
         RedisStorage storage = RedisStorage.class.cast(data.get("storage"));
         ObjectReader reader = ObjectReader.class.cast(data.get("reader"));
+        List<TelegramMessageProcessor> processors = List.class.cast(data.get("processors"));
 
         try {
             Update update = getUpdate(bot, storage, reader);
 
-            update.getResult().stream()
-                    .map(result -> result.getMessage().getText())
-                    .filter(text -> StringUtils.equalsIgnoreCase("/status", text))
-                    .findAny().ifPresent(text -> {
-                try {
-                    bot.sendMessage("I am alive!");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-
+            processors.forEach(processor -> processor.process(update));
         } catch (IOException e) {
             e.printStackTrace();
         }

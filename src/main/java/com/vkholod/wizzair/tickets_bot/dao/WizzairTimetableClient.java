@@ -44,7 +44,7 @@ public class WizzairTimetableClient {
         return new HttpUrl.Builder()
                 .scheme("https")
                 .host("be.wizzair.com")
-                .addPathSegment("10.1.0")
+                .addPathSegment("10.2.0")
                 .addPathSegment("Api")
                 .addPathSegment("search")
                 .addPathSegment("timetable")
