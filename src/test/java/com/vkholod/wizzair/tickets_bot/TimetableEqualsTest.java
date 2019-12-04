@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -64,31 +65,37 @@ public class TimetableEqualsTest {
                 "ABC", "XYZ",
                 now.toLocalDate(), now.toLocalDate().plusDays(1),
                 new Price(BigDecimal.TEN, "USD"),
-                List.of(now.plusHours(5))
+                Stream.of(now.plusHours(5)).collect(Collectors.toList())
         );
 
         Flight outBoundFlight2 = new Flight(
                 "ABC", "XYZ",
                 now.toLocalDate(), now.toLocalDate().plusDays(1),
                 new Price(BigDecimal.TEN, "USD"),
-                List.of(now.plusHours(5))
+                Stream.of(now.plusHours(5)).collect(Collectors.toList())
         );
 
         Flight returnFlight1 = new Flight(
                 "XYZ", "ABC",
                 now.toLocalDate(), now.toLocalDate().plusDays(1),
                 new Price(BigDecimal.TEN, "USD"),
-                List.of(now.plusHours(10))
+                Stream.of(now.plusHours(10)).collect(Collectors.toList())
         );
 
         Flight returnFlight2 = new Flight(
                 "XYZ", "ABC",
                 now.toLocalDate(), now.toLocalDate().plusDays(1),
                 new Price(BigDecimal.TEN, "USD"),
-                List.of(now.plusHours(10))
+                Stream.of(now.plusHours(10)).collect(Collectors.toList())
         );
 
-         timetable1 = new Timetable(List.of(outBoundFlight1), List.of(returnFlight1));
-         timetable2 = new Timetable(List.of(outBoundFlight2), List.of(returnFlight2));
+         timetable1 = new Timetable(
+                 Stream.of(outBoundFlight1).collect(Collectors.toList()),
+                 Stream.of(returnFlight1).collect(Collectors.toList())
+         );
+         timetable2 = new Timetable(
+                 Stream.of(outBoundFlight2).collect(Collectors.toList()),
+                 Stream.of(returnFlight2).collect(Collectors.toList()))
+         ;
     }
 }

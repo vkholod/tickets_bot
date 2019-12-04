@@ -19,6 +19,8 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.vkholod.wizzair.tickets_bot.util.Const.*;
 
@@ -83,11 +85,11 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
 
         Scheduler scheduler = new StdSchedulerFactory().getScheduler();
 
-        List<TelegramMessageProcessor> processors = List.of(
+        List<TelegramMessageProcessor> processors = Stream.of(
                 new StatusProcessor(bot),
                 new ToggleTimetableCheckProcessor(bot, scheduler),
                 new TimetableProcessor(bot, service, storage)
-        );
+        ).collect(Collectors.toList());
 
         JobDetail timetableCheckJob = QuartzUtils.createTimetableCheckJob(bot, storage, service, processors);
         JobDetail telegramJob = QuartzUtils.createTelegramJob(bot, storage, mapper, processors);
