@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -Ddw.server.applicationConnectors[0].port=$PORT -jar target/TicketsBot.jar server config.yml
+web: java $JAVA_OPTS -javaagent:/app/newrelic/newrelic.jar -Ddw.server.applicationConnectors[0].port=$PORT -jar target/TicketsBot.jar server config.yml
