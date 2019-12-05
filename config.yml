@@ -21,4 +21,5 @@ okHttpClientConnectTimeout: 10
 okHttpClientReadTimeout: 30
 
 telegramBotToken: 1050919465:AAEUDUN0u2N9E9f4oCB6QTG9949SO9OYvMI
-telegramChatId: 607797330
+telegramChatId: -371989453
+#telegramChatId: 607797330

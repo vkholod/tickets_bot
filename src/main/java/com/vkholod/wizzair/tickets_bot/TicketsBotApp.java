@@ -86,7 +86,7 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
         Scheduler scheduler = new StdSchedulerFactory().getScheduler();
 
         List<TelegramMessageProcessor> processors = Stream.of(
-                new StatusProcessor(bot),
+                new StatusProcessor(bot, scheduler),
                 new ToggleTimetableCheckProcessor(bot, scheduler),
                 new TimetableProcessor(bot, service, storage)
         ).collect(Collectors.toList());
@@ -95,7 +95,7 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
         JobDetail telegramJob = QuartzUtils.createTelegramJob(bot, storage, mapper, processors);
 
         Trigger telegramTrigger = QuartzUtils.preparePermanentTrigger(TELEGRAM_JOB_NAME, TELEGRAM_TRIGGER_NAME, 5);
-        Trigger timetableCheckTrigger = QuartzUtils.preparePermanentTrigger(TIMETABLE_CHECK_JOB_NAME, TIMETABLE_CHEC_TRIGGER_NAME, 30);
+        Trigger timetableCheckTrigger = QuartzUtils.preparePermanentTrigger(TIMETABLE_CHECK_JOB_NAME, TIMETABLE_CHECK_TRIGGER_NAME, 60 * 60);
 
         scheduler.scheduleJob(telegramJob, telegramTrigger);
         scheduler.scheduleJob(timetableCheckJob, timetableCheckTrigger);

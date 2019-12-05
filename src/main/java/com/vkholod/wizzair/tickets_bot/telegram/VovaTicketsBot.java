@@ -24,14 +24,23 @@ public class VovaTicketsBot {
                 .build();
     }
 
-    public void sendMessage(String text) throws IOException {
+    public void sendMessage(String text, boolean silent) throws IOException {
         HttpUrl sendMessageUrl = baseUrl.newBuilder()
                 .addPathSegment("sendMessage")
                 .addQueryParameter("chat_id", chatId)
                 .addQueryParameter("text", text)
+                .addQueryParameter("disable_notification", Boolean.toString(silent))
                 .build();
 
         doGet(sendMessageUrl);
+    }
+
+    public void sendMessage(String text) throws IOException {
+        sendMessage(text, false);
+    }
+
+    public void sendSilentMessage(String text) throws IOException {
+        sendMessage(text, true);
     }
 
     public String getUpdates() throws IOException {

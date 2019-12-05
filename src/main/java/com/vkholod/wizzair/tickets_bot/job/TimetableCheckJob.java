@@ -29,17 +29,17 @@ public class TimetableCheckJob implements Job {
         RedisStorage storage = RedisStorage.class.cast(data.get("storage"));
 
         try {
-            System.out.println("TimetableCheckJob start");
-            Timetable fetchedTimetable = timetableService.getTimetable(timetableRequestDto);
-            Optional<Timetable> savedTimetable = storage.findTimetableInRedis(timetableRequestDto.generateRedisKey());
-
-            if (!savedTimetable.isPresent()) {
-                storage.saveTimetableInRedis(timetableRequestDto.generateRedisKey(), fetchedTimetable);
-            } else if (!savedTimetable.get().equals(fetchedTimetable)) {
-                storage.saveTimetableInRedis(timetableRequestDto.generateRedisKey(), fetchedTimetable);
-                bot.sendMessage(RoundTripsUtil.buildMessage(fetchedTimetable));
-            }
-            System.out.println("TimetableCheckJob end");
+//            Timetable fetchedTimetable = timetableService.getTimetable(timetableRequestDto);
+//            Optional<Timetable> savedTimetable = storage.findTimetableInRedis(timetableRequestDto.generateRedisKey());
+//
+//            if (!savedTimetable.isPresent()) {
+//                storage.saveTimetableInRedis(timetableRequestDto.generateRedisKey(), fetchedTimetable);
+//            } else if (!savedTimetable.get().equals(fetchedTimetable)) {
+//                storage.saveTimetableInRedis(timetableRequestDto.generateRedisKey(), fetchedTimetable);
+//                bot.sendMessage(RoundTripsUtil.buildMessage(fetchedTimetable));
+//            } else {
+                bot.sendSilentMessage("I am alive, no changes yet");
+//            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
