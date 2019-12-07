@@ -14,6 +14,7 @@ import com.vkholod.wizzair.tickets_bot.util.QuartzUtils;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.views.ViewBundle;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
@@ -64,6 +65,7 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
 
     @Override
     public void initialize(Bootstrap<TicketsBotConfig> bootstrap) {
+        bootstrap.addBundle(new ViewBundle<TicketsBotConfig>());
     }
 
     private OkHttpClient httpClient(TicketsBotConfig config) {

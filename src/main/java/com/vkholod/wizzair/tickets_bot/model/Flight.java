@@ -1,13 +1,11 @@
 package com.vkholod.wizzair.tickets_bot.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.vkholod.wizzair.tickets_bot.util.FlightDateDeserializer;
-import com.vkholod.wizzair.tickets_bot.util.FlightDateSerializer;
-import com.vkholod.wizzair.tickets_bot.util.FlightDateTimeConverter;
-import com.vkholod.wizzair.tickets_bot.util.FlightDateTimeDeserializer;
+import com.vkholod.wizzair.tickets_bot.util.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.time.LocalDate;
@@ -109,6 +107,11 @@ public class Flight {
 
     public LocalDateTime departureDateTime() {
         return departureDates.stream().sorted().findFirst().get();
+    }
+
+    @JsonIgnore
+    public String getHumanReadableDepartureDateTime() {
+        return Const.DATE_TIME_HR_FORMATTER.format(departureDateTime());
     }
 
     public boolean isBeforeOrEqual(Flight otherFlight) {

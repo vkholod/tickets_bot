@@ -31,7 +31,7 @@ public class RoundTripsUtil {
                                 .filter(returnFlight -> returnFlight.isEqualOrAfter(outboundFlight))
                                 .map(returnFlight -> new RoundTrip(outboundFlight, returnFlight))
                                 .collect(Collectors.toList()).stream()
-                ).sorted(Comparator.comparing(roundTrip -> roundTrip.totalPrice().getAmount()))
+                ).sorted(Comparator.comparing(roundTrip -> roundTrip.getTotalPrice().getAmount()))
                 .collect(Collectors.toList());
     }
 
