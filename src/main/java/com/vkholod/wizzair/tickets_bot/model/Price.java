@@ -15,12 +15,20 @@ public class Price {
     @JsonProperty
     private String currencyCode;
 
+    @JsonProperty
+    private BigDecimal dollars;
+
     public Price() {
     }
 
     public Price(BigDecimal amount, String currencyCode) {
         this.amount = amount;
         this.currencyCode = currencyCode;
+    }
+
+    public Price(BigDecimal amount, String currencyCode, BigDecimal dollars) {
+        this(amount, currencyCode);
+        this.dollars = dollars;
     }
 
     public BigDecimal getAmount() {
@@ -37,6 +45,14 @@ public class Price {
 
     public void setCurrencyCode(String currencyCode) {
         this.currencyCode = currencyCode;
+    }
+
+    public BigDecimal getDollars() {
+        return dollars;
+    }
+
+    public void setDollars(BigDecimal dollars) {
+        this.dollars = dollars;
     }
 
     @Override

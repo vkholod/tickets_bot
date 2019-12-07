@@ -31,8 +31,11 @@ public class RoundTrip {
     }
 
     @JsonGetter
-    public BigDecimal totalPrice() {
-        return outboundFlight.getPrice().getAmount().add(returnFlight.getPrice().getAmount());
+    public Price totalPrice() {
+        BigDecimal origPrice = outboundFlight.getPrice().getAmount().add(returnFlight.getPrice().getAmount());
+        BigDecimal dollarsPrice = outboundFlight.getPrice().getDollars().add(returnFlight.getPrice().getDollars());
+
+        return new Price(origPrice, outboundFlight.getPrice().getCurrencyCode(), dollarsPrice);
     }
 
     @Override

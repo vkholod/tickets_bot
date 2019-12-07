@@ -6,7 +6,6 @@ import com.vkholod.wizzair.tickets_bot.model.telegram.Result;
 import com.vkholod.wizzair.tickets_bot.model.telegram.Update;
 import com.vkholod.wizzair.tickets_bot.telegram.TelegramMessageProcessor;
 import com.vkholod.wizzair.tickets_bot.telegram.VovaTicketsBot;
-import org.apache.commons.lang3.StringUtils;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -55,12 +54,14 @@ public class TelegramJob implements Job {
 
         Update update = reader.readValue(value);
 
-        determineLatestOffset(update).ifPresent(latestOffset -> storage.saveTelegramOffsetInRedis(latestOffset + 1));
+        if (!offset.isPresent()) { // removing old results to avoid to much messages for processing if offset is unavailable
+            update.setResult(update.getResult().stream()
+                    .filter(filterOutdated)
+                    .collect(Collectors.toList())
+            );
+        }
 
-        update.setResult(update.getResult().stream()
-                .filter(filterOutdated)
-                .collect(Collectors.toList())
-        );
+        determineLatestOffset(update).ifPresent(latestOffset -> storage.saveTelegramOffsetInRedis(latestOffset + 1));
 
         return update;
     }

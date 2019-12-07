@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.OkHttpClient;
+import com.vkholod.wizzair.tickets_bot.dao.ExchangeRatesClient;
 import com.vkholod.wizzair.tickets_bot.dao.RedisStorage;
 import com.vkholod.wizzair.tickets_bot.dao.WizzairTimetableClient;
 import com.vkholod.wizzair.tickets_bot.resources.RoundTripResource;
@@ -38,7 +39,9 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
         VovaTicketsBot bot = new VovaTicketsBot(httpClient, config.getTelegramBotToken(), config.getTelegramChatId());
 
         WizzairTimetableClient timetableClient = new WizzairTimetableClient(mapper, httpClient);
-        TimetableService timetableService = new TimetableService(timetableClient);
+        ExchangeRatesClient exchangeRatesClient = new ExchangeRatesClient(mapper, httpClient);
+
+        TimetableService timetableService = new TimetableService(timetableClient, exchangeRatesClient);
 
         RedisStorage redisStorage = new RedisStorage(config.getRedisUri(), config.getRedisPoolConfig(), mapper);
 
