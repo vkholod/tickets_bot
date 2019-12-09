@@ -3,6 +3,7 @@ package com.vkholod.wizzair.tickets_bot.model;
 import com.fasterxml.jackson.annotation.JsonGetter;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 
 public class RoundTrip {
 
@@ -36,6 +37,14 @@ public class RoundTrip {
         BigDecimal dollarsPrice = outboundFlight.getPrice().getDollars().add(returnFlight.getPrice().getDollars());
 
         return new Price(origPrice, outboundFlight.getPrice().getCurrencyCode(), dollarsPrice);
+    }
+
+    @JsonGetter
+    public long getDuration() {
+        return Duration.between(
+                outboundFlight.departureDateTime(),
+                returnFlight.departureDateTime()
+        ).toDays() + 1;
     }
 
     @Override

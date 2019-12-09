@@ -35,6 +35,14 @@ public class RoundTripsUtil {
                 .collect(Collectors.toList());
     }
 
+    public static Comparator<RoundTrip> priceSort = Comparator.comparing(roundTrip -> roundTrip.getTotalPrice().getAmount());
+
+    public static Comparator<RoundTrip> durationSort = Comparator.comparing(roundTrip -> roundTrip.getDuration());
+
+    public static Comparator<RoundTrip> outboundDateSort = Comparator.comparing(roundTrip -> roundTrip.getOutboundFlight().getDepartureDates().get(0));
+
+    public static Comparator<RoundTrip> returnDateSort = Comparator.comparing(roundTrip -> roundTrip.getReturnFlight().getDepartureDates().get(0));
+
     public static String buildMessage(Timetable timetable) {
         return buildRoundTrips(timetable).stream()
                 .map(RoundTrip::toString)
