@@ -105,7 +105,7 @@ public class TicketsBotApp extends Application<TicketsBotConfig> {
         scheduler.scheduleJob(telegramJob, telegramTrigger);
         scheduler.scheduleJob(timetableCheckJob, timetableCheckTrigger);
 
-        scheduler.pauseJob(JobKey.jobKey(TIMETABLE_CHECK_JOB_NAME));
+        //scheduler.pauseJob(JobKey.jobKey(TIMETABLE_CHECK_JOB_NAME));
 
         scheduler.start();
 
