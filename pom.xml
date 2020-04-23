@@ -11,7 +11,7 @@
 
     <properties>
         <tomcat.version>8.5.40</tomcat.version>
-        <jackson.version>2.9.10.1</jackson.version>
+        <jackson.version>2.9.10.4</jackson.version>
         <okhttp.version>2.7.5</okhttp.version>
         <hk2.version>2.5.0-b36</hk2.version>
         <dropwizard.version>1.2.2</dropwizard.version>
